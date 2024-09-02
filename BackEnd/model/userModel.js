@@ -1,0 +1,49 @@
+const mongoose = require('mongoose');
+
+const userSchema = new mongoose.Schema({
+    fullName: {
+        type: String
+    },
+    nameOfCompany: {
+        type: String
+    },
+    phoneNumber: {
+        type: String
+    },
+    email: {
+        type: String,
+        // unique: true,
+        // lowercase: true,
+        required: true,
+        trim: true
+    },
+    passWord: {
+        type: String
+    },
+    staff: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "staff"
+    }],
+    profilePicture: {
+        pictureUrl: String,
+        pictureId: String
+    },
+    isVerified: {
+        type:Boolean,
+        default:false
+    },
+    isAdmin: {
+        type:Boolean,
+        default:false
+    },
+    isSuperAdmin: {
+        type:Boolean,
+        default:false
+    } 
+}, {timestamp: true});
+
+
+const userModel = mongoose.model("user", userSchema);
+
+module.exports = userModel;
+
