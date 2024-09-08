@@ -4,13 +4,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {welcomeEmail} = require('../helpers/mailTemplate');
 const sendMail = require('../helpers/email');
+const cloudinary = require('../utils/cloudinary');
 const fs = require('fs');
 const path = require('path');
 
 
 exports.createUser = async (req, res) => {
     try {
-        const {fullName, nameOfCompany, phoneNumber, email, passWord, profilePicture, staff} = req.body;
+        const {fullName, nameOfCompany, phoneNumber, email, password, profilePicture, staff} = req.body;
        
         const emailExist = await userModel.findOne({email: email.toLowerCase()}); 
         if (emailExist) {
@@ -20,15 +21,58 @@ exports.createUser = async (req, res) => {
         }
 
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(passWord, salt);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // const {profilePicture} = req.files;
+        
+        //     if(!profilePicture) {
+        //         return res.status(400).json({
+        //             message: 'No file has been uploaded.'
+        //         });
+        //     };
+        // // console.log(profilePicture.mimeTypes != 'image/jpeg' && 'image/png' && 'image/jpg');
+
+        //     if(profilePicture.mimetypes != 'image/jpeg' && 'image/png' && 'image/jpg') {
+        //         return res.status(400).json({
+        //             message: 'Please upload a JPEG, PNG, or JPG image.'
+        //         });
+        //     };
+            
+         
+        // const cloudImage = await cloudinary.uploader.upload(req.files.profilePicture.tempFilePath,
+        //     {"Folder": "UsersDp"}, (error, data) => {
+        //     if(error) {
+        //         return res.status(500).json(error.message)
+        //     } else {
+        //         return data
+        //     }
+        // });
+
+        if(!req.file) {
+            return res.status(400).json({
+                message: "Kindly upload your profile picture."
+            })
+        }
+
+        const cloudProfile = await cloudinary.uploader.upload(req.file.path,
+            {folder: "user_dp"}, (err) => {
+                if(err) {
+                    return res.status(400).json({
+                        message: error.message
+                    })
+                }
+            });
 
         const data = {
             fullName,
             nameOfCompany,
             phoneNumber,
             email: email.toLowerCase(),
-            passWord: hashedPassword,
-            profilePicture,
+            password: hashedPassword,
+            profilePicture: {
+                pictureId: cloudProfile.public_id,
+                pictureUrl: cloudProfile.secure_url
+            },
             staff
         };
 
@@ -66,33 +110,33 @@ exports.createUser = async (req, res) => {
     }
 };
 
-exports.verifyUser = async (req, res) => {
-    try {
-        const {token} = req.params;
-        const user = await userModel.findOne({
-            verificationToken: token
-        });
+// exports.verifyUser = async (req, res) => {
+//     try {
+//         const {token} = req.params;
+//         const user = await userModel.findOne({
+//             verificationToken: token
+//         });
 
-        if (!user) {
-            return res.status(400).json({
-                message: "Invalid or expired token."
-            });
-        }
+//         if (!user) {
+//             return res.status(400).json({
+//                 message: "Invalid or expired token."
+//             });
+//         }
 
-        user.isVerified = true;
-        user.verificationToken = undefined;
-        await user.save();
+//         user.isVerified = true;
+//         user.verificationToken = undefined;
+//         await user.save();
 
-        res.status(200).json({
-            message: "Email verified successfully."
-        });
+//         res.status(200).json({
+//             message: "Email verified successfully."
+//         });
 
-    } catch (error) {
-        res.status(500).json({
-            message: error.message
-        })
-    }
-};
+//     } catch (error) {
+//         res.status(500).json({
+//             message: error.message
+//         })
+//     }
+// };
 
 exports.getAllUsers = async (req, res) => {
     try {
@@ -133,6 +177,38 @@ exports.getAUser = async (req, res) => {
     }
 };
 
+exports.updateAUser = async (req, res) => {
+    try {
+        const staffId = req.params.id;
+        const {fullName, nameOfCompany, phoneNumber, email, password, profilePicture, staff} = req.body;
+        const data = {
+            fullName,
+            nameOfCompany,
+            phoneNumber,
+            email,
+            password,
+            profilePicture,
+            staff
+        }
+
+        const updatedUser = await userModel.findOneAndUpdate(
+            {_id: userId},
+            data,
+            {new: true}
+        );
+        
+        if(updatedUser) {
+            return res.status(200).json({
+                message: "This user has been updated.",
+                data: updatedUser
+            })
+        }
+
+    } catch (error) {
+        res.status(500).json(error.message)
+    }
+};
+
 exports.deleteAUser = async (req, res) => {
     try {
         const id = req.params.id;
@@ -157,19 +233,24 @@ exports.deleteAUser = async (req, res) => {
 
 exports.logIn = async (req, res) => {
     try {
-        const {email, passWord} = req.body;
-        
-        const findUser = await userModel.findOne({
-            $or: [{nameOfCompany: email}, {email: email.toLowerCase()}]
-        });
+        const {email, password} = req.body;
 
-        if (!findUser) {
+        if(!email || !password) {
+            return res.status(400).json({
+                message: "Email and password are required."
+            })
+        }
+        
+        const findUser = await userModel.findOne({email});
+        
+        if(!findUser) {
             return res.status(404).json({
                 message: 'The user with this email does not exist.'
             });
         }
-
-        const matchPassword = await bcrypt.compare(passWord, findUser.passWord);
+        // console.log('findUser:', findUser);
+        
+        const matchPassword = await bcrypt.compare(password, findUser.password);
         
         if (!matchPassword) {
             return res.status(400).json({
@@ -179,7 +260,7 @@ exports.logIn = async (req, res) => {
 
         if (findUser.isVerified === false) {
             return res.status(400).json({
-                message: 'The user with this email is not verified.'
+                message: "The user with this email is not verified."
             });
         }
 
@@ -194,7 +275,7 @@ exports.logIn = async (req, res) => {
         const {isVerified, createdAt, updatedAt, __v, ...others} = findUser._doc;
 
         return res.status(200).json({
-            message: 'Logged in successfully.',
+            message: "Logged in successfully.",
             data: others,
             token: user
         });
@@ -262,7 +343,7 @@ exports.reverifyEmail = async (req, res) => {
             process.env.jwtSecret,
             {expiresIn: "2 minutes"}
         );
-        const reverifyLink = `${req.protocol}://${req.get("host")}/api/v1/verify/${user._id}/${userToken}`;
+        const reverifyLink = `${req.protocol}://${req.get("host")}/api/v1/reverify/${user._id}`;
         const link = sendMail({
             subject: `Kindly re-verify your mail.`,
             email: user.email,

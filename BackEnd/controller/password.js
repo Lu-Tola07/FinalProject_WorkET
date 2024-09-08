@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sendMail = require('../helpers/email');
 const {welcomeEmail} = require('../helpers/mailTemplate');
-const staffModel = require('../model/contentModel'); 
+const staffModel = require('../model/staffModel'); 
 
 exports.forgotPassword = async (req, res) => {
     try {
@@ -115,7 +115,7 @@ exports.changePassword = async (req,res)=>{
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hashSync(newPassword, salt);
     
-        user.passWord = hashedPassword
+        user.password = hashedPassword
         await user.save()
         return res.status(200).json({
             message: "Changed password successfully."

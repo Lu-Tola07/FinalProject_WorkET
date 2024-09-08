@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    passWord: {
+    password: {
         type: String
     },
     staff: [{
@@ -25,21 +25,21 @@ const userSchema = new mongoose.Schema({
         ref: "staff"
     }],
     profilePicture: {
-        pictureUrl: String,
-        pictureId: String
+        pictureId: String,
+        pictureUrl: String
     },
     isVerified: {
         type:Boolean,
-        default:false
+        default: false
     },
     isAdmin: {
         type:Boolean,
-        default:false
-    },
-    isSuperAdmin: {
-        type:Boolean,
-        default:false
-    } 
+        default: true
+    }
+    // isSuperAdmin: {
+    //     type:Boolean,
+    //     default:false
+    // } 
 }, {timestamp: true});
 
 

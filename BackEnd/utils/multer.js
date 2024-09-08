@@ -1,117 +1,63 @@
-// const verifyUser = async (req, res) => {
-//     try {
-//         const { token } = req.params;
-//         const { email } = jwt.verify(token, process.env.secret_key);
+const multer = require('multer');
+const path = require('path');
 
-//         const user = await schoolModel.findOne({ email });
-//         if (!user) {
-//             return res.status(404).json({ message: "User not found" });
-//         }
 
-//         if (user.isVerified) {
-//             return res.status(400).json({ message: 'User already verified' });
-//         }
+const storage = multer.diskStorage({
 
-//         user.isVerified = true;
-//         await user.save();
+    destination: function(req, file, cb){
+        console.log(file)
+        cb(null, "./media")
+    },
+    filename: function(req, file, cb){
+        const fileName = req.body.firstName;
+        const fileExtension = file.originalname.split(".").pop();
+        // console.log(fileExtension)
+        cb(null, `${fileName}.${fileExtension}`)
 
-//         res.status(200).json({ message: "Verification successful", user });
-//     } catch (error) {
-//         return res.status(500).json({ message: error.message });
-//     }
-// };
-// const resendVerification = async (req, res) => {
-//     try {
-//         const { email } = req.body;
-//         const checkUser = await schoolModel.findOne({ email });
 
-//         if (!checkUser) {
-//             return res.status(400).json({ message: 'User with this email is not registered' });
-//         }
+        // const authHeader = req.headers.authorization;
+        //     let token;
+    
+        //     if (authHeader) {
+        //         token = authHeader.split(' ')[1];
+        //     }     
+        // // console.log(user)
+        //     if(token){
+        //         // const token=req.headers
+        //         // console.log(token)
+        //         const decodedToken = jwt.verify(token,process.env.jwtSecret);
+        //         const user = decodedToken.firstName;
+              
+        //         console.log(user)
+        //         const fileExtension = file.originalname.split('.').pop();
+        //         console.log('b')
+        //         cb(null, ${user}'s profile picture updated.${fileExtension}); 
+    },
+    // fileFilter: function(req, file, cb){
+    //     if(file.mimetype != "image/jpg" || file.mimetype != "image/jpeg" || file.mimetype != "image/png"){
+    //         return cb(new error())
+    //     }
+    //     if(file.size > 1024*1024){
+    //         return cb(new error())
+    //     } else {
+    //         cb(null, true)
+    //     }
+    // }
 
-//         if (checkUser.isVerified) {
-//             return res.status(400).json({ message: 'User is already verified' });
-//         }
+});
 
-//         const token = jwt.sign({ email: checkUser.email, userId: checkUser._id }, process.env.secret_key, { expiresIn: "1d" });
-//         const verificationLink = http://yourfrontenddomain.com/verify/${token};
-//         const emailSubject = 'Resend Verification Mail';
-//         const html = generateWelcomeEmail(checkUser.name, verificationLink, true);
-//         const mailOptions = {
-//             from: process.env.user,
-//             to: email,
-//             subject: emailSubject,
-//             html: html
-//         };
-
-//         // Send the email
-//         await sendEmail(mailOptions);
-
-//         // Update the user's isVerified status
-//         checkUser.isVerified = true;
-//         await checkUser.save();
-
-//         return res.status(200).json({ message: "Verification email sent" });
-//     } catch (error) {
-//         return res.status(500).json({ message: error.message });
-//     }
-// };
-
-const verifyUser = async (req, res) => {
-    try {
-        const { token } = req.params;
-        const { email } = jwt.verify(token, process.env.secret_key);
-
-        const user = await schoolModel.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
+const uploader = multer({
+    storage,
+    fileFilter: function(req, file, cb){
+        const extension = path.extname(file.originalname)
+        if(extension == ".jpg" || extension == ".jpeg" || extension == ".png") {
+            cb(null, true)
+        } else {
+            cb(new Error("Unsupported format, kindly upload an image."))
         }
+    },
+    
+    limits: {fileSize: 1024*1024*20}
+});
 
-        if (user.isVerified) {
-            return res.status(400).json({ message: 'User already verified' });
-        }
-
-        user.isVerified = true;
-        await user.save();
-
-        res.status(200).json({ message: "Verification successful", user });
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
-};
-const resendVerification = async (req, res) => {
-    try {
-        const { email } = req.body;
-        const checkUser = await schoolModel.findOne({ email });
-
-        if (!checkUser) {
-            return res.status(400).json({ message: 'User with this email is not registered' });
-        }
-
-        if (checkUser.isVerified) {
-            return res.status(400).json({ message: 'User is already verified' });
-        }
-
-        const token = jwt.sign({ email: checkUser.email, userId: checkUser._id }, process.env.secret_key, { expiresIn: "1d" });
-        const verificationLink = http://yourfrontenddomain.com/verify/${token};
-        const emailSubject = 'Resend Verification Mail';
-        const html = generateWelcomeEmail(checkUser.name, verificationLink, true);
-        const mailOptions = {
-            from: process.env.user,
-            to: email,
-            subject: emailSubject,
-            html: html
-        };
-
-        // Send the email
-        await sendEmail(mailOptions);
-
-        // Update the user's isVerified status
-        checkUser.isVerified = true;
-        await checkUser.save();
-
-        return res.status(200).json({ message: "Verification email sent" });
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
-};
+module.exports = uploader;

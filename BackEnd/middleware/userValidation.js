@@ -7,8 +7,9 @@ const schema = Joi.object({
         "string.empty": "Fullname cannot be left empty.",
         "string.min": "Fullname must be at least 3 characters long.",
         "string.pattern.base": "Fullname must be in letters only and follow the correct format."
+        // "string.trimAndNormalize": 'String should not contain leading or trailing spaces and multiple spaces within.'
     }),
-    nameOfCompany: Joi.string().min(3).required().messages({
+    nameOfCompany: Joi.string().min(3).trim().required().messages({
         "any.required": "Please provide Name Of Company.",
         "string.empty": "Name Of Company cannot be left empty.",
         "string.min": "Name Of Company must be at least 3 characters long."
@@ -18,7 +19,7 @@ const schema = Joi.object({
         "string.empty": "Email cannot be left empty.",
         "string.email": "Please provide a valid email address."
     }),
-    passWord: Joi.string().required().pattern(new RegExp("^(?=.[!@#$%^&])(?=.*[A-Z]).{8,}$")).messages({
+    password: Joi.string().required().pattern(new RegExp("^(?=.[!@#$%^&])(?=.*[A-Z]).{8,}$")).messages({
         "any.required": "Please provide a password.",
         "string.empty": "Password cannot be left empty.",
         "string.pattern.base": "Password must be at least 8 characters long and include at least one uppercase letter and one special character (!@#$%^&*)."
