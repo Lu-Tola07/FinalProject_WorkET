@@ -85,18 +85,21 @@ exports.resetPassword = async (req, res) =>{
 
 exports.changePassword = async (req,res)=>{
     try {
-        const {token} = req.params;
+        const {userId} = req.user;
         
         const {oldPassword, newPassword, confirmNewPassword} = req.body;
         
-        const decodedToken = jwt.verify(token, process.env.jwtSecret);
-        const userId = decodedToken.userId
-    
-        const user = await userModel.findById(userId)
+        // const decodedToken = jwt.verify(token, process.env.jwtSecret);
+        // const userId = decodedToken.userId
+        let user;
+        user = await userModel.findById(userId);
         if(!user){
-            return res.status(404).json({
-                message: "User not found."
-            })
+            user = await staffModel.findById(userId);
+            if(!user) {
+                return res.status(400).json({
+                    message: "User not found."
+                })
+            }
         }
      
         const matchedPassword = await bcrypt.compare(oldPassword, user.password)
@@ -116,6 +119,7 @@ exports.changePassword = async (req,res)=>{
         const hashedPassword = await bcrypt.hashSync(newPassword, salt);
     
         user.password = hashedPassword
+        user.isPasswordChanged = true;
         await user.save()
         return res.status(200).json({
             message: "Changed password successfully."

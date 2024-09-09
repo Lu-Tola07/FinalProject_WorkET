@@ -14,7 +14,7 @@ exports.createUser = async (req, res) => {
         const {fullName, nameOfCompany, phoneNumber, email, password, profilePicture, staff} = req.body;
        
         const emailExist = await userModel.findOne({email: email.toLowerCase()}); 
-        if (emailExist) {
+        if(emailExist) {
             return res.status(400).json({
                 error: "This email account already exists."
             })
@@ -48,20 +48,20 @@ exports.createUser = async (req, res) => {
         //     }
         // });
 
-        if(!req.file) {
-            return res.status(400).json({
-                message: "Kindly upload your profile picture."
-            })
-        }
+        // if(!req.file) {
+        //     return res.status(400).json({
+        //         message: "Kindly upload your profile picture."
+        //     })
+        // }
 
-        const cloudProfile = await cloudinary.uploader.upload(req.file.path,
-            {folder: "user_dp"}, (err) => {
-                if(err) {
-                    return res.status(400).json({
-                        message: error.message
-                    })
-                }
-            });
+        // const cloudProfile = await cloudinary.uploader.upload(req.file.path,
+        //     {folder: "user_dp"}, (err) => {
+        //         if(err) {
+        //             return res.status(400).json({
+        //                 message: error.message
+        //             })
+        //         }
+        //     });
 
         const data = {
             fullName,
@@ -69,17 +69,17 @@ exports.createUser = async (req, res) => {
             phoneNumber,
             email: email.toLowerCase(),
             password: hashedPassword,
-            profilePicture: {
-                pictureId: cloudProfile.public_id,
-                pictureUrl: cloudProfile.secure_url
-            },
+            // profilePicture: {
+            //     pictureId: cloudProfile.public_id,
+            //     pictureUrl: cloudProfile.secure_url
+            // },
             staff
         };
 
         const newUser = await userModel.create(data);
        
         const userToken = jwt.sign(
-            {id: newUser._id, email: newUser.email},
+            {userId: newUser._id, email: newUser.email},
             process.env.jwtSecret,
             {expiresIn: "3m"}
         );
@@ -289,13 +289,15 @@ exports.logIn = async (req, res) => {
 
 exports.verifyEmail = async (req, res) => {
     try {
-        const Id = req.params.id
-        const findUser = await userModel.findById(Id);
+        const token = req.params.id
+        const{userId}=token
+        const findUser = await userModel.findById(userId);
+        console.log(findUser)
 
-        jwt.verify(req.params.token, process.env.jwtSecret, (err) => {
-            if(err) {
+        jwt.verify(token, process.env.jwtSecret, (err) => {
+            if(!err) {
 
-                const link = `${req.protocol}://${req.get("host")}/api/v1/verify/${verify._id}/${token}`;
+                const link = `${req.protocol}://${req.get("host")}/api/v1/verify/${findUser._id}/${token}`;
                 sendMail({
                     subject: `Kindly verify your mail.`,
                     email: findUser.email,
@@ -307,7 +309,8 @@ exports.verifyEmail = async (req, res) => {
                     return res.status(400).json(`Your account has already been verified.`)
                 };
 
-                userModel.findByIdAndUpdate(Id, {isVerified: true});
+                // userModel.findByIdAndUpdate(Id, {isVerified: true});
+                findUser.isVerified = true
         
                 res.status(200).json({
                     message: `You have been verified, kindly go ahead and log in.`})

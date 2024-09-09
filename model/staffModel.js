@@ -35,7 +35,8 @@ const staffSchema = new mongoose.Schema({
         default:false
     },
     isPasswordChanged: {
-        type: String
+        type: Boolean,
+        default: false
         // required: true
     },
     profilePicture: {

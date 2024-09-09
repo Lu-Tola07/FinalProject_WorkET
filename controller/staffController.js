@@ -38,6 +38,91 @@ const generateAndSaveUniqueCode = async () => {
     return code
 };
 
+
+exports.newStaff = async (req, res) => {
+    try {
+        const { fullName, email, role, address, phoneNumber } = req.body;
+        const id = req.params.id;
+
+        if(!id) {
+            return res.status(400).json({
+                message: "No ID provided in request body."
+            })
+        }
+
+        if(!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "Invalid user ID format."
+            })
+        }
+        // console.log(`Searching for user with ID: ${id}`);
+
+        const user = await userModel.findById(id);
+        if(!user) {
+            return res.status(404).json({
+                message: "This user was not found."
+            })
+        }
+
+        // const file = req.file;
+        // if (!file) {
+        //     return res.status(400).json({ message: "Kindly upload your profile picture." });
+        // }
+
+        const randomPassword = crypto.randomBytes(8).toString('hex');
+        const hashedPassword = await bcrypt.hash(randomPassword, 10);
+        // const uniqueCode = generateUniqueCode();
+
+        const data = {
+            fullName,
+            email,
+            role,
+            address,
+            phoneNumber,
+            user: id,
+            password: hashedPassword
+            // loginCode: uniqueCode
+        };
+
+        const newStaff = await staffModel.create(data);
+        user.staff.push(newStaff._id);
+        await user.save();
+
+        // const emailContent = `Hello ${newStaff.fullName},\n\nYour account has been created successfully.\n\nLogin Email: ${newStaff.email}\nPassword: ${randomPassword}\nLogin Code: ${uniqueCode}\n\nPlease change your password after logging in.\n\nBest regards,\nYour Company`;
+
+        // try {
+        //     await sendMail(newStaff.email, 'Your Account Has Been Created', emailContent);
+
+        const emailContent = `Hello ${newStaff.fullName},\n\nYour account has been created successfully.\n\nLogin Email: ${newStaff.email}\nPassword: ${randomPassword}\n\nPlease change your password after logging in.\n\nBest regards,\nYour Company`;
+
+        try {
+            
+            await sendMail({
+                email: newStaff.email,
+                subject: "Your Account Has Been Created.",
+                text: emailContent,    
+                html: emailContent    
+            })
+
+        } catch (emailError) {
+            console.error("Error sending email:", emailError.message)
+            return res.status(500).json({
+                message: "Failed to send email."
+            })
+        }
+
+        res.status(200).json({
+            message: `The staff, ${newStaff.fullName} has been created.`,
+            data: newStaff
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        })
+    }
+};
+
 // exports.createStaff = async (req, res) => {
 //     try {
 //         const {fullName, email, role, address, phoneNumber} = req.body;
@@ -137,7 +222,7 @@ exports.verifyStaff = async (req, res) => {
         res.status(500).json({
             message: error.message
         })
-    };
+    }
 };
 
 exports.loginStaff = async (req, res) => {
@@ -145,7 +230,7 @@ exports.loginStaff = async (req, res) => {
 
         const { email, password, loginCode } = req.body;
 
-        if(!email || !password || !loginCode) {
+        if(!email || !password) {
             return res.status(400).json({
                 message: "Email, password and login code are required."
             })
@@ -157,7 +242,7 @@ exports.loginStaff = async (req, res) => {
                 message: "Staff not found."
             })
         }
-
+       
         let isMatch = false;
         if(password) {
             isMatch = await bcrypt.compare(password, staff.password)
@@ -172,8 +257,8 @@ exports.loginStaff = async (req, res) => {
         }
 
         const token = jwt.sign(
-            {staffId: staff._id, email: staff.email},
-            "jwtSecret",
+            {userId: staff._id, email: staff.email},
+            process.env.jwtSecret,
             {expiresIn: '1h'}
         );
 
@@ -412,6 +497,7 @@ exports.updatePicture = async (req, res) => {
 
 
 
+
 // Simulating a database with in-memory storage
 // const users = {
 //     'staff1': {
@@ -455,86 +541,6 @@ exports.updatePicture = async (req, res) => {
 
 
 
-
-
-
-
-
-exports.newStaff = async (req, res) => {
-    try {
-        const { fullName, email, role, address, phoneNumber } = req.body;
-        const id = req.params.id;
-
-        if (!id) {
-            return res.status(400).json({ message: "No ID provided in request body." });
-        }
-
-        // Validate the ID format
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ message: "Invalid user ID format." });
-        }
-
-        // console.log(`Searching for user with ID: ${id}`);
-
-        // Find user by ID
-        const user = await userModel.findById(id);
-        if (!user) {
-            return res.status(404).json({ message: "This user was not found." });
-        }
-
-        // const file = req.file;
-        // if (!file) {
-        //     return res.status(400).json({ message: "Kindly upload your profile picture." });
-        // }
-
-        const randomPassword = crypto.randomBytes(8).toString('hex'); // Generate a random password
-        const hashedPassword = await bcrypt.hash(randomPassword, 10); // Hash the password
-        const uniqueCode = generateUniqueCode(); // Generate unique login code
-
-        const data = {
-            fullName,
-            email,
-            role,
-            address,
-            phoneNumber,
-            user: id,
-            password: hashedPassword, // Save hashed password
-            loginCode: uniqueCode // Save unique login code
-        };
-
-        const newStaff = await staffModel.create(data);
-        user.staff.push(newStaff._id);
-        await user.save();
-
-        // const emailContent = `Hello ${newStaff.fullName},\n\nYour account has been created successfully.\n\nLogin Email: ${newStaff.email}\nPassword: ${randomPassword}\nLogin Code: ${uniqueCode}\n\nPlease change your password after logging in.\n\nBest regards,\nYour Company`;
-
-        // try {
-        //     await sendMail(newStaff.email, 'Your Account Has Been Created', emailContent);
-
-        const emailContent = `Hello ${newStaff.fullName},\n\nYour account has been created successfully.\n\nLogin Email: ${newStaff.email}\nPassword: ${randomPassword}\nLogin Code: ${uniqueCode}\n\nPlease change your password after logging in.\n\nBest regards,\nYour Company`;
-
-        try {
-            // Fix: Pass options object to sendMail
-            await sendMail({
-                email: newStaff.email, // recipient
-                subject: 'Your Account Has Been Created',
-                text: emailContent,    
-                html: emailContent    
-            })
-        } catch (emailError) {
-            console.error('Error sending email:', emailError.message);
-            return res.status(500).json({ message: 'Failed to send email.' });
-        }
-
-        res.status(200).json({
-            message: `The staff, ${newStaff.fullName} has been created.`,
-            data: newStaff
-        });
-
-    } catch (error) {
-        res.status(500).json(error.message);
-    }
-};
 
 
 
