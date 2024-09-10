@@ -29,7 +29,11 @@ const userSchema = new mongoose.Schema({
         pictureUrl: String
     },
     isVerified: {
-        type:Boolean,
+        type: Boolean,
+        default: false
+    },
+    isActive: {
+        type: Boolean,
         default: false
     },
     isAdmin: {

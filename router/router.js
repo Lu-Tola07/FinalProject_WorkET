@@ -17,7 +17,7 @@ const { updateTasksCompleted, getPerformanceData } = require('../controller/perf
 
 
 
-router.post("/newUser", validateSignUp, createUser);
+router.post("/newUser", uploader.single("profilePicture"), validateSignUp, createUser);
 router.post("/newStaff/:id", makeAdmin, validateStaff, newStaff);
 router.post("/Login", logIn);
 router.post("/Staff", loginStaff);

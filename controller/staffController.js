@@ -232,7 +232,7 @@ exports.loginStaff = async (req, res) => {
 
         if(!email || !password) {
             return res.status(400).json({
-                message: "Email, password and login code are required."
+                message: "Email and password are required."
             })
         }
 

@@ -11,7 +11,7 @@ const path = require('path');
 
 exports.createUser = async (req, res) => {
     try {
-        const {fullName, nameOfCompany, phoneNumber, email, password, profilePicture, staff} = req.body;
+        const {fullName, nameOfCompany, phoneNumber, email, password, staff} = req.body;
        
         const emailExist = await userModel.findOne({email: email.toLowerCase()}); 
         if(emailExist) {
@@ -23,45 +23,43 @@ exports.createUser = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // const {profilePicture} = req.files;
+        const {profilePicture} = req.files;
+        if(!profilePicture) {
+            return res.status(400).json({
+                message: "No file has been uploaded."
+            })
+        };
+        // console.log(profilePicture.mimeTypes != 'image/jpeg' && 'image/png' && 'image/jpg');
+
+        if(profilePicture.mimetypes != "image/jpeg' && 'image/png' && 'image/jpg") {
+            return res.status(400).json({
+                message: "Please upload a JPEG, PNG, or JPG image."
+            })
+        };
         
-        //     if(!profilePicture) {
-        //         return res.status(400).json({
-        //             message: 'No file has been uploaded.'
-        //         });
-        //     };
-        // // console.log(profilePicture.mimeTypes != 'image/jpeg' && 'image/png' && 'image/jpg');
+        const cloudImage = await cloudinary.uploader.upload(req.files.profilePicture.tempFilePath,
+            {"Folder": "user_dp"}, (error, data) => {
+            if(error) {
+                return res.status(500).json(error.message)
+            } else {
+                return data
+            }
+        });
 
-        //     if(profilePicture.mimetypes != 'image/jpeg' && 'image/png' && 'image/jpg') {
-        //         return res.status(400).json({
-        //             message: 'Please upload a JPEG, PNG, or JPG image.'
-        //         });
-        //     };
-            
-         
-        // const cloudImage = await cloudinary.uploader.upload(req.files.profilePicture.tempFilePath,
-        //     {"Folder": "UsersDp"}, (error, data) => {
-        //     if(error) {
-        //         return res.status(500).json(error.message)
-        //     } else {
-        //         return data
-        //     }
-        // });
+        if(!req.file) {
+            return res.status(400).json({
+                message: "Kindly upload your profile picture."
+            })
+        }
 
-        // if(!req.file) {
-        //     return res.status(400).json({
-        //         message: "Kindly upload your profile picture."
-        //     })
-        // }
-
-        // const cloudProfile = await cloudinary.uploader.upload(req.file.path,
-        //     {folder: "user_dp"}, (err) => {
-        //         if(err) {
-        //             return res.status(400).json({
-        //                 message: error.message
-        //             })
-        //         }
-        //     });
+        const cloudProfile = await cloudinary.uploader.upload(req.file.path,
+            {folder: "user_dp"}, (err) => {
+                if(err) {
+                    return res.status(400).json({
+                        message: error.message
+                    })
+                }
+            });
 
         const data = {
             fullName,
@@ -69,10 +67,10 @@ exports.createUser = async (req, res) => {
             phoneNumber,
             email: email.toLowerCase(),
             password: hashedPassword,
-            // profilePicture: {
-            //     pictureId: cloudProfile.public_id,
-            //     pictureUrl: cloudProfile.secure_url
-            // },
+            profilePicture: {
+                pictureId: cloudProfile.public_id,
+                pictureUrl: cloudProfile.secure_url
+            },
             staff
         };
 
@@ -84,7 +82,6 @@ exports.createUser = async (req, res) => {
             {expiresIn: "3m"}
         );
 
-        // Save the token to the user's record in the database
         newUser.token = userToken;
         await newUser.save();
 
@@ -109,34 +106,6 @@ exports.createUser = async (req, res) => {
         })
     }
 };
-
-// exports.verifyUser = async (req, res) => {
-//     try {
-//         const {token} = req.params;
-//         const user = await userModel.findOne({
-//             verificationToken: token
-//         });
-
-//         if (!user) {
-//             return res.status(400).json({
-//                 message: "Invalid or expired token."
-//             });
-//         }
-
-//         user.isVerified = true;
-//         user.verificationToken = undefined;
-//         await user.save();
-
-//         res.status(200).json({
-//             message: "Email verified successfully."
-//         });
-
-//     } catch (error) {
-//         res.status(500).json({
-//             message: error.message
-//         })
-//     }
-// };
 
 exports.getAllUsers = async (req, res) => {
     try {
@@ -258,11 +227,17 @@ exports.logIn = async (req, res) => {
             });
         }
 
-        if (findUser.isVerified === false) {
+        if(!findUser.isActive) {
             return res.status(400).json({
-                message: "The user with this email is not verified."
-            });
+                error: "The user with this email is not verified."
+            })
         }
+
+        // if (findUser.isVerified === false) {
+        //     return res.status(400).json({
+        //         message: "The user with this email is not verified."
+        //     })
+        // }
 
         findUser.isLoggedIn = true;
         
@@ -272,7 +247,7 @@ exports.logIn = async (req, res) => {
             userId: findUser._id
         }, process.env.jwtSecret, {expiresIn: "1d"});
 
-        const {isVerified, createdAt, updatedAt, __v, ...others} = findUser._doc;
+        const {isActive, createdAt, updatedAt, __v, ...others} = findUser._doc;
 
         return res.status(200).json({
             message: "Logged in successfully.",
@@ -289,40 +264,117 @@ exports.logIn = async (req, res) => {
 
 exports.verifyEmail = async (req, res) => {
     try {
-        const token = req.params.id
-        const{userId}=token
-        const findUser = await userModel.findById(userId);
-        console.log(findUser)
+        const { id, token } = req.params;
+        // console.log(`Verifying email for userId: ${id}`);
+        // console.log(`Received token: ${token}`);
 
-        jwt.verify(token, process.env.jwtSecret, (err) => {
-            if(!err) {
+        if(!id || !token) {
+            return res.status(400).json({
+                error: "User ID and token are required."
+            })
+        }
 
-                const link = `${req.protocol}://${req.get("host")}/api/v1/verify/${findUser._id}/${token}`;
-                sendMail({
-                    subject: `Kindly verify your mail.`,
-                    email: findUser.email,
-                    html: welcomeEmail(link, findUser.nameOfCompany)
-                });
-
-            } else {
-                if(findUser.isVerified == true) {
-                    return res.status(400).json(`Your account has already been verified.`)
-                };
-
-                // userModel.findByIdAndUpdate(Id, {isVerified: true});
-                findUser.isVerified = true
-        
-                res.status(200).json({
-                    message: `You have been verified, kindly go ahead and log in.`})
+        jwt.verify(token, process.env.jwtSecret, async (err, decoded) => {
+            if(err) {
+                return res.status(400).json({
+                    error: "Invalid or expired token."
+                })
             }
-        });
 
+            const user = await userModel.findById(id);
+            if(!user) {
+                // console.error(`User with ID ${id} not found.`);
+                return res.status(404).json({
+                    error: "User not found."
+                })
+            }
+
+            // if (user.token !== token) {
+            //     console.error(`Token mismatch for userId ${id}. Stored token: ${user.token}`);
+            //     return res.status(400).json({
+            //         error: "Token mismatch."
+            //     })
+            // }
+
+            user.isActive = true;
+            // user.token = undefined;
+            await user.save();
+
+            res.status(200).json({
+                message: "Email verified successfully. You can now log in."
+            })
+        });
     } catch (error) {
         res.status(500).json({
             message: error.message
         })
-    };
+    }
 };
+
+// exports.verifyEmail = async (req, res) => {
+//     try {
+//         const token = req.params.id;
+//         const {userId} = token;
+//         const findUser = await userModel.findById(userId);
+//         console.log(findUser)
+
+//         jwt.verify(token, process.env.jwtSecret, (err) => {
+//             if(!err) {
+
+//                 const link = `${req.protocol}://${req.get("host")}/api/v1/verify/${findUser._id}/${token}`;
+//                 sendMail({
+//                     subject: `Kindly verify your mail.`,
+//                     email: findUser.email,
+//                     html: welcomeEmail(link, findUser.nameOfCompany)
+//                 });
+
+//             } else {
+//                 if(findUser.isVerified == true) {
+//                     return res.status(400).json(`Your account has already been verified.`)
+//                 };
+
+//                 // userModel.findByIdAndUpdate(Id, {isVerified: true});
+//                 findUser.isVerified = true
+        
+//                 res.status(200).json({
+//                     message: `You have been verified, kindly go ahead and log in.`})
+//             }
+//         });
+
+//     } catch (error) {
+//         res.status(500).json({
+//             message: error.message
+//         })
+//     };
+// };
+
+// exports.verifyUser = async (req, res) => {
+//     try {
+//         const {token} = req.params;
+//         const user = await userModel.findOne({
+//             verificationToken: token
+//         });
+
+//         if (!user) {
+//             return res.status(400).json({
+//                 message: "Invalid or expired token."
+//             });
+//         }
+
+//         user.isVerified = true;
+//         user.verificationToken = undefined;
+//         await user.save();
+
+//         res.status(200).json({
+//             message: "Email verified successfully."
+//         });
+
+//     } catch (error) {
+//         res.status(500).json({
+//             message: error.message
+//         })
+//     }
+// };
 
 exports.reverifyEmail = async (req, res) => {
     try {
