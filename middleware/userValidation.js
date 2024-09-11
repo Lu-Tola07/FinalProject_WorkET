@@ -1,14 +1,24 @@
 const Joi = require("@hapi/joi");
 
 const schema = Joi.object({
-    fullName: Joi.string().min(3).trim().required().pattern(/^[A-Z][a-zA-Z'-]+( [A-Z]\.)?( [A-Z][a-zA-Z'-]+)+$/)
+    fullName: Joi.string().min(3)
+    .trim() // Automatically trims leading and trailing spaces
+    .required()
+    .pattern(/^[A-Z][a-zA-Z'-]+( [A-Z]\.)?( [A-Z][a-zA-Z'-]+)+$/)
     .messages({
-        "any.required": "Please provide fullname.",
+        "any.required": "Please provide a fullname.",
         "string.empty": "Fullname cannot be left empty.",
         "string.min": "Fullname must be at least 3 characters long.",
         "string.pattern.base": "Fullname must be in letters only and follow the correct format."
-        // "string.trimAndNormalize": 'String should not contain leading or trailing spaces and multiple spaces within.'
     }),
+    // fullName: Joi.string().min(3).trim().required().pattern(/^[A-Z][a-zA-Z'-]+( [A-Z]\.)?( [A-Z][a-zA-Z'-]+)+$/)
+    // .messages({
+    //     "any.required": "Please provide fullname.",
+    //     "string.empty": "Fullname cannot be left empty.",
+    //     "string.min": "Fullname must be at least 3 characters long.",
+    //     "string.pattern.base": "Fullname must be in letters only and follow the correct format."
+    //     // "string.trimAndNormalize": 'String should not contain leading or trailing spaces and multiple spaces within.'
+    // }),
     nameOfCompany: Joi.string().min(3).trim().required().messages({
         "any.required": "Please provide Name Of Company.",
         "string.empty": "Name Of Company cannot be left empty.",

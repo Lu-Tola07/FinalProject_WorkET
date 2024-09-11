@@ -23,43 +23,94 @@ exports.createUser = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const {profilePicture} = req.files;
-        if(!profilePicture) {
-            return res.status(400).json({
-                message: "No file has been uploaded."
-            })
-        };
+        // const {profilePicture} = req.files;
+        // if(!profilePicture) {
+        //     return res.status(400).json({
+        //         message: "No file has been uploaded."
+        //     })
+        // };
+        // let profilePictureData = {};
+        // if(req.files && req.files.profilePicture) {
+        //     const profilePicture = req.files.profilePicture;
+        //     // Validate profile picture type
+        //     const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+        //     if(!allowedMimeTypes.includes(profilePicture.mimetype)) {
+        //         return res.status(400).json({
+        //             message: "Please upload a JPEG, PNG, or JPG image."
+        //         })
+        //     }
+        // };
         // console.log(profilePicture.mimeTypes != 'image/jpeg' && 'image/png' && 'image/jpg');
 
-        if(profilePicture.mimetypes != "image/jpeg' && 'image/png' && 'image/jpg") {
-            return res.status(400).json({
-                message: "Please upload a JPEG, PNG, or JPG image."
-            })
-        };
-        
-        const cloudImage = await cloudinary.uploader.upload(req.files.profilePicture.tempFilePath,
-            {"Folder": "user_dp"}, (error, data) => {
-            if(error) {
-                return res.status(500).json(error.message)
-            } else {
-                return data
-            }
-        });
+        // // const cloudProfile = await cloudinary.uploader.upload(profilePicture.tempFilePath,
+        // //     {folder: "user_dp"});
+        // //     profilePictureData = {
+        // //         pictureId: cloudProfile.public_id,
+        // //         pictureUrl: cloudProfile.secure_url
+        // //     }
+        // // };
 
-        if(!req.file) {
+
+        // // if(profilePicture.mimetypes != "image/jpeg' && 'image/png' && 'image/jpg") {
+        // //     return res.status(400).json({
+        // //         message: "Please upload a JPEG, PNG, or JPG image."
+        // //     })
+        // // };
+        
+        // const cloudProfile = await cloudinary.uploader.upload(req.files.profilePicture.tempFilePath,
+        //     {Folder: "user_dp"}, (error, data) => {
+        //     if(error) {
+        //         return res.status(500).json(error.message)
+        //     } else {
+        //         return data
+        //     }
+        // });
+
+        // if(!req.file) {
+        //     return res.status(400).json({
+        //         message: "Kindly upload your profile picture."
+        //     })
+        // }
+
+        // const cloudProfile = await cloudinary.uploader.upload(req.file.path,
+        //     {folder: "user_dp"}, (err) => {
+        //         if(err) {
+        //             return res.status(400).json({
+        //                 message: error.message
+        //             })
+        //         }
+        //     });
+
+        if(req.files && req.files.profilePicture) {
+            const profilePicture = req.files.profilePicture;
+            // Validate profile picture type
+            const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+            if (!allowedMimeTypes.includes(profilePicture.mimetype)) {
+                return res.status(400).json({
+                    message: "Please upload a JPEG, PNG, or JPG image."
+                })
+            };
+            // Upload to Cloudinary
+            try {
+                const cloudProfile = await cloudinary.uploader.upload(profilePicture.tempFilePath,
+                    {folder: "user_dp"}
+                );
+
+                profilePictureData = {
+                    pictureId: cloudProfile.public_id,
+                    pictureUrl: cloudProfile.secure_url
+                };
+
+            } catch (uploadError) {
+                return res.status(500).json({
+                    message: `Cloudinary upload failed: ${uploadError.message}`
+                })
+            }
+        } else {
             return res.status(400).json({
                 message: "Kindly upload your profile picture."
             })
-        }
-
-        const cloudProfile = await cloudinary.uploader.upload(req.file.path,
-            {folder: "user_dp"}, (err) => {
-                if(err) {
-                    return res.status(400).json({
-                        message: error.message
-                    })
-                }
-            });
+        };
 
         const data = {
             fullName,
