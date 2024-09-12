@@ -8,7 +8,7 @@ const { createUser, logIn, getAllUsers, getAUser,
 // const { checkAdmin } = require('../middleware/authorization');
 const { authenticate, makeAdmin, authenticated } = require('../middleware/authorization');
 const Joi = require("@hapi/joi");
-const uploader = require('../utils/multer');
+// const uploader = require('../utils/multer');
 const { validateSignUp } = require('../middleware/userValidation');
 const { validateStaff } = require('../middleware/staffValidation');
 const {forgotPassword, changePassword, resetPassword} = require('../controller/password');
@@ -17,7 +17,7 @@ const { updateTasksCompleted, getPerformanceData } = require('../controller/perf
 
 
 
-router.post("/newUser", uploader.single("profilePicture"), validateSignUp, createUser);
+router.post("/newUser", validateSignUp, createUser);
 router.post("/newStaff/:id", makeAdmin, validateStaff, newStaff);
 router.post("/Login", logIn);
 router.post("/Staff", loginStaff);

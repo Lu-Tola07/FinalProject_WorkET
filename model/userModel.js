@@ -28,10 +28,10 @@ const userSchema = new mongoose.Schema({
         pictureId: String,
         pictureUrl: String
     },
-    isVerified: {
-        type: Boolean,
-        default: false
-    },
+    // isVerified: {
+    //     type: Boolean,
+    //     default: false
+    // },
     isActive: {
         type: Boolean,
         default: false

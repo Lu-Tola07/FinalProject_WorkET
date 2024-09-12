@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {welcomeEmail} = require('../helpers/mailTemplate');
 const sendMail = require('../helpers/email');
-const cloudinary = require('../utils/cloudinary');
+// const cloudinary = require('../utils/cloudinary');
 const fs = require('fs');
 const path = require('path');
 
@@ -81,36 +81,77 @@ exports.createUser = async (req, res) => {
         //         }
         //     });
 
-        if(req.files && req.files.profilePicture) {
-            const profilePicture = req.files.profilePicture;
-            // Validate profile picture type
-            const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
-            if (!allowedMimeTypes.includes(profilePicture.mimetype)) {
-                return res.status(400).json({
-                    message: "Please upload a JPEG, PNG, or JPG image."
-                })
-            };
-            // Upload to Cloudinary
-            try {
-                const cloudProfile = await cloudinary.uploader.upload(profilePicture.tempFilePath,
-                    {folder: "user_dp"}
-                );
+        // if(req.files && req.files.profilePicture) {
+        //     const profilePicture = req.files.profilePicture;
+        //     // Validate profile picture type
+        //     const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+        //     if (!allowedMimeTypes.includes(profilePicture.mimetype)) {
+        //         return res.status(400).json({
+        //             message: "Please upload a JPEG, PNG, or JPG image."
+        //         })
+        //     };
+        //     // Upload to Cloudinary
+        //     try {
+        //         const cloudProfile = await cloudinary.uploader.upload(profilePicture.tempFilePath,
+        //             {folder: "user_dp"}
+        //         );
 
-                profilePictureData = {
-                    pictureId: cloudProfile.public_id,
-                    pictureUrl: cloudProfile.secure_url
-                };
+        //         profilePictureData = {
+        //             pictureId: cloudProfile.public_id,
+        //             pictureUrl: cloudProfile.secure_url
+        //         };
+            
 
-            } catch (uploadError) {
-                return res.status(500).json({
-                    message: `Cloudinary upload failed: ${uploadError.message}`
-                })
-            }
-        } else {
-            return res.status(400).json({
-                message: "Kindly upload your profile picture."
-            })
-        };
+        //     } catch (error) {
+        //         return res.status(500).json({
+        //             message: `Cloudinary upload failed: ${uploadError.message}`
+        //         })
+        //     }
+        // } else {
+        //     return res.status(400).json({
+        //         message: error.message
+        //     })
+        // };
+
+        // if (req.files && req.files.profilePicture) {
+        //     const profilePicture = req.files.profilePicture;
+        
+        //     // Validate profile picture type
+        //     const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+        //     if (!allowedMimeTypes.includes(profilePicture.mimetype)) {
+        //         return res.status(400).json({
+        //             message: "Please upload a JPEG, PNG, or JPG image."
+        //         });
+        //     }
+        
+        //     // Upload to Cloudinary
+        //     try {
+        //         const cloudProfile = await cloudinary.uploader.upload(profilePicture.tempFilePath, {
+        //             folder: "user_dp"
+        //         });
+        
+        //         const profilePictureData = {
+        //             pictureId: cloudProfile.public_id,
+        //             pictureUrl: cloudProfile.secure_url
+        //         };
+        
+        //         // Respond with success and image data
+        //         return res.status(200).json({
+        //             message: "Profile picture uploaded successfully.",
+        //             data: profilePictureData
+        //         });
+        
+        //     } catch (error) {
+        //         return res.status(500).json({
+        //             message: `Cloudinary upload failed: ${error.message}`
+        //         });
+        //     }
+        // } else {
+        //     return res.status(400).json({
+        //         message: "No profile picture uploaded."
+        //     });
+        // }
+        
 
         const data = {
             fullName,
@@ -118,12 +159,13 @@ exports.createUser = async (req, res) => {
             phoneNumber,
             email: email.toLowerCase(),
             password: hashedPassword,
-            profilePicture: {
-                pictureId: cloudProfile.public_id,
-                pictureUrl: cloudProfile.secure_url
-            },
+            // profilePicture: {
+            //     pictureId: cloudProfile.public_id,
+            //     pictureUrl: cloudProfile.secure_url
+            // },
             staff
         };
+        
 
         const newUser = await userModel.create(data);
        
