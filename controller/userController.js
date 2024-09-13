@@ -303,11 +303,11 @@ exports.logIn = async (req, res) => {
             })
         }
         
-        const findUser = await userModel.findOne({email: email.toLowerCase});
+        const findUser = await userModel.findOne({email: email.toLowerCase()});
         
         if(!findUser) {
             return res.status(404).json({
-                message: 'The user with this email does not exist.'
+                message: "The user with this email does not exist."
             });
         }
         // console.log('findUser:', findUser);
