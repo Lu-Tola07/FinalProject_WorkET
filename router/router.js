@@ -21,24 +21,24 @@ router.post("/newUser", validateSignUp, createUser);
 router.post("/newStaff/:id", makeAdmin, validateStaff, newStaff);
 router.post("/Login", logIn);
 router.post("/Staff", loginStaff);
-router.post("/forget", authenticate, forgotPassword);
+router.post("/forget", makeAdmin, forgotPassword);
 
 router.get("/verify/:id/:token", verifyEmail);
 router.get("/reverify/:id", reverifyEmail);
 router.get("/verifyStaff/:id/:token", verifyStaff);
-router.get("/allUsers", authenticate, getAllUsers);
+router.get("/allUsers", makeAdmin, getAllUsers);
 router.get("/allStaff", makeAdmin, getAllStaff);
-router.get("/User/:id", authenticate, getAUser);
-router.get("/Staff/:id", authenticate, getAStaff);
+router.get("/User/:id", makeAdmin, getAUser);
+router.get("/Staff/:id", makeAdmin, getAStaff);
 router.get("/Staff/Performance/:id", authenticate, authenticated, getPerformanceData);
 
-router.put("/reset", authenticate, resetPassword);
-router.put("/change", authenticate, changePassword);
-router.put("/Staff/:id", authenticate, updateAStaff);
+router.put("/reset", makeAdmin, resetPassword);
+router.put("/change", makeAdmin, changePassword);
+router.put("/Staff/:id", makeAdmin, updateAStaff);
 router.put("/Staff/Task/:id", authenticate, authenticated, updateTasksCompleted);
-router.patch("/Update/:id", authenticate, updateAUser);
+router.patch("/Update/:id", makeAdmin, updateAUser);
 
-router.delete("/User/:id", authenticate, deleteAUser);
-router.delete("/Staff/:id", authenticate, deleteAStaff);
+router.delete("/User/:id", makeAdmin, deleteAUser);
+router.delete("/Staff/:id", makeAdmin, deleteAStaff);
 
 module.exports = router;

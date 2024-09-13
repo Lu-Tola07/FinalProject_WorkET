@@ -154,8 +154,8 @@ exports.createUser = async (req, res) => {
         
 
         const data = {
-            fullName,
-            nameOfCompany,
+            fullName: fullName.trim(),
+            nameOfCompany: nameOfCompany.trim(),
             phoneNumber,
             email: email.toLowerCase(),
             password: hashedPassword,
@@ -188,7 +188,7 @@ exports.createUser = async (req, res) => {
         });
 
         res.status(201).json({
-            message: `Welcome ${nameOfCompany}, kindly check your email to access the link to log in.`,
+            message: `Welcome ${newUser.nameOfCompany}, kindly check your email to access the link to log in.`,
             data: newUser,
             token: userToken
         });

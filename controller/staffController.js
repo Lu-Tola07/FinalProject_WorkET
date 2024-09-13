@@ -13,30 +13,30 @@ const fs = require('fs');
 const { promisify } = require('util');
 const {createUser} = require('./userController');
 
-const generateUniqueCode = () => {
-    return Math.floor(10000 + Math.random() * 90000).toString()
-};
+// const generateUniqueCode = () => {
+//     return Math.floor(10000 + Math.random() * 90000).toString()
+// };
 
 // const generateUniqueCode = () => {
 //     return crypto.randomBytes(6).toString('hex').toUpperCase(); // 12-character code
 // };
 
-const generateAndSaveUniqueCode = async () => {
-    let code;
-    let unique = false;
+// const generateAndSaveUniqueCode = async () => {
+//     let code;
+//     let unique = false;
 
-    while(!unique) {
-        code = generateUniqueCode();
+//     while(!unique) {
+//         code = generateUniqueCode();
 
-        const existingCode = await userModel.findOne({verificationCode: code});
+//         const existingCode = await userModel.findOne({verificationCode: code});
 
-        if(!existingCode) {
-            unique = true
-        }
-    }
+//         if(!existingCode) {
+//             unique = true
+//         }
+//     }
 
-    return code
-};
+//     return code
+// };
 
 
 exports.newStaff = async (req, res) => {
@@ -70,14 +70,15 @@ exports.newStaff = async (req, res) => {
         // }
 
         const randomPassword = crypto.randomBytes(8).toString('hex');
+        console.log(randomPassword)
         const hashedPassword = await bcrypt.hash(randomPassword, 10);
         // const uniqueCode = generateUniqueCode();
 
         const data = {
-            fullName,
+            fullName: fullName.trim(),
             email,
             role,
-            address,
+            address: address.trim(),
             phoneNumber,
             user: id,
             password: hashedPassword
@@ -228,7 +229,7 @@ exports.verifyStaff = async (req, res) => {
 exports.loginStaff = async (req, res) => {
     try {
 
-        const { email, password, loginCode } = req.body;
+        const { email, password } = req.body;
 
         if(!email || !password) {
             return res.status(400).json({
@@ -236,25 +237,23 @@ exports.loginStaff = async (req, res) => {
             })
         }
 
-        const staff = await staffModel.findOne({email});
+        const staff = await staffModel.findOne({email: email.toLowerCase()});
         if(!staff) {
             return res.status(404).json({
                 message: "Staff not found."
             })
-        }
+        };
+        console.log(password)
+        console.log(staff.password)
        
-        let isMatch = false;
-        if(password) {
-            isMatch = await bcrypt.compare(password, staff.password)
-        } else if(loginCode) {
-            isMatch = loginCode === staff.loginCode;
-        }
+        const isMatch = await bcrypt.compare(password, staff.password);
+        console.log(isMatch)
 
         if (!isMatch) {
             return res.status(400).json({
-                message: "Invalid credentials."
+                message: "Incorrect password."
             })
-        }
+        };
 
         const token = jwt.sign(
             {userId: staff._id, email: staff.email},
