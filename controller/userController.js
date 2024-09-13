@@ -151,13 +151,12 @@ exports.createUser = async (req, res) => {
         //         message: "No profile picture uploaded."
         //     });
         // }
-        
 
         const data = {
             fullName: fullName.trim(),
             nameOfCompany: nameOfCompany.trim(),
             phoneNumber,
-            email: email.toLowerCase(),
+            email: email.toLowerCase().trim(),
             password: hashedPassword,
             // profilePicture: {
             //     pictureId: cloudProfile.public_id,
