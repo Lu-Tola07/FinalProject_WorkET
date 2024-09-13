@@ -172,7 +172,7 @@ exports.createUser = async (req, res) => {
         const userToken = jwt.sign(
             {userId: newUser._id, email: newUser.email},
             process.env.jwtSecret,
-            {expiresIn: "3m"}
+            {expiresIn: "1hr"}
         );
 
         newUser.token = userToken;
