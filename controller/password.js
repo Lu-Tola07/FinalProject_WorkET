@@ -85,6 +85,13 @@ exports.resetPassword = async (req, res) =>{
 
 exports.changePassword = async (req,res)=>{
     try {
+        // const { error } = schema.validate(req.body);
+        // if (error) {
+        //     return res.status(400).json({
+        //         message: error.details[0].message
+        //     });
+        // }
+
         const {userId} = req.user;
         
         const {oldPassword, newPassword, confirmNewPassword} = req.body;
