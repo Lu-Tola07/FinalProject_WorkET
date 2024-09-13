@@ -93,16 +93,16 @@ exports.changePassword = async (req,res)=>{
         // }
 
         const {userId} = req.user;
+        console.log('another id',req.user)
         
         const {oldPassword, newPassword, confirmNewPassword} = req.body;
-        console.log(userId)
         
         // const decodedToken = jwt.verify(token, process.env.jwtSecret);
         // const userId = decodedToken.userId
         let user;
-        user = await userModel.findById(userId);
+        user = await userModel.findById(req.user);
         if(!user){
-            user = await staffModel.findById(userId);
+            user = await staffModel.findById(req.user);
             if(!user) {
                 return res.status(400).json({
                     message: "User not found."

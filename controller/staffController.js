@@ -243,11 +243,11 @@ exports.loginStaff = async (req, res) => {
                 message: "Staff not found."
             })
         };
-        console.log(password)
-        console.log(staff.password)
+        // console.log(password)
+        // console.log(staff.password)
        
         const isMatch = await bcrypt.compare(password, staff.password);
-        console.log(isMatch)
+        // console.log(isMatch)
 
         if (!isMatch) {
             return res.status(400).json({

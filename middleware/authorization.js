@@ -13,7 +13,7 @@ const authenticate = async (req, res, next) => {
             })
         }
         const token = hasAuthorization.split(" ")[1];
-        console.log(token)
+        // console.log('this is the token',token)
         if(!token) {
             return res.status(404).json({
                 message: "Token not found.",
@@ -21,12 +21,13 @@ const authenticate = async (req, res, next) => {
         }
         
         const decodeToken = await jwt.verify(token, process.env.jwtSecret);
-        console.log(decodeToken)
+        console.log('this is the user',decodeToken)
 
         let user;
         user = await userModel.findById(decodeToken.userId);
         if(!user) {
             user = await staffModel.findById(decodeToken.userId);
+            console.log('this is the staff',user)
             if(!user) {
                 return res.status(404).json({
                     message: "Not authorized: User not found."
@@ -37,7 +38,9 @@ const authenticate = async (req, res, next) => {
         //     userId: user._id,
         //     decodeToken
         // }
-        req.user = user;
+        req.user = user.id;
+        console.log('this is the user id',req.user)
+
 
         next();
         
@@ -58,7 +61,7 @@ const authenticate = async (req, res, next) => {
 const authenticated = async (req, res, next) => {
     try {
         const {email} = req.user;
-        const staff = await staffModel.findOne({email});
+        const staff = await staffModel.findOne({email: email.toLowerCase()});
         if (!staff.isPasswordChanged) {
             return res.status(400).json({
                 message: "Kindly change your password."

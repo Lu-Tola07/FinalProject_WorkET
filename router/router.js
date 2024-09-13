@@ -34,7 +34,7 @@ router.get("/Staff/:id", makeAdmin, getAStaff);
 router.get("/Staff/Performance/:id", authenticate, authenticated, validateStaff, getPerformanceData);
 
 router.put("/reset", makeAdmin, resetPassword);
-router.put("/change", validatePassword, changePassword);
+router.put("/change", authenticate, validatePassword, changePassword);
 router.put("/Staff/:id", makeAdmin, updateAStaff);
 router.put("/Staff/Task/:id", authenticate, authenticated, validateStaff, updateTasksCompleted);
 router.patch("/Update/:id", makeAdmin, updateAUser);
