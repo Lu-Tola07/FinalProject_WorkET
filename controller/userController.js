@@ -338,7 +338,7 @@ exports.logIn = async (req, res) => {
             nameOfCompany: findUser.nameOfCompany,
             email: findUser.email,
             userId: findUser._id
-        }, process.env.jwtSecret, {expiresIn: "1d"});
+        }, process.env.jwtSecret, {expiresIn: "1hr"});
 
         const {isActive, createdAt, updatedAt, __v, ...others} = findUser._doc;
 

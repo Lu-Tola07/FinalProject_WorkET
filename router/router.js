@@ -11,6 +11,7 @@ const Joi = require("@hapi/joi");
 // const uploader = require('../utils/multer');
 const { validateSignUp } = require('../middleware/userValidation');
 const { validateStaff } = require('../middleware/staffValidation');
+const { validatePassword } = require('../middleware/passwordValidation');
 const {forgotPassword, changePassword, resetPassword} = require('../controller/password');
 const { updateTasksCompleted, getPerformanceData } = require('../controller/performance');
 
@@ -18,7 +19,7 @@ const { updateTasksCompleted, getPerformanceData } = require('../controller/perf
 
 
 router.post("/newUser", validateSignUp, createUser);
-router.post("/newStaff/:id", makeAdmin, validateStaff, newStaff);
+router.post("/newStaff/:id", makeAdmin, newStaff);
 router.post("/Login", logIn);
 router.post("/Staff", loginStaff);
 router.post("/forget", makeAdmin, forgotPassword);
@@ -30,12 +31,12 @@ router.get("/allUsers", makeAdmin, getAllUsers);
 router.get("/allStaff", makeAdmin, getAllStaff);
 router.get("/User/:id", makeAdmin, getAUser);
 router.get("/Staff/:id", makeAdmin, getAStaff);
-router.get("/Staff/Performance/:id", authenticate, authenticated, getPerformanceData);
+router.get("/Staff/Performance/:id", authenticate, authenticated, validateStaff, getPerformanceData);
 
 router.put("/reset", makeAdmin, resetPassword);
-router.put("/change", changePassword);
+router.put("/change", validatePassword, changePassword);
 router.put("/Staff/:id", makeAdmin, updateAStaff);
-router.put("/Staff/Task/:id", authenticate, authenticated, updateTasksCompleted);
+router.put("/Staff/Task/:id", authenticate, authenticated, validateStaff, updateTasksCompleted);
 router.patch("/Update/:id", makeAdmin, updateAUser);
 
 router.delete("/User/:id", makeAdmin, deleteAUser);
