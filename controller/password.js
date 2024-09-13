@@ -88,6 +88,7 @@ exports.changePassword = async (req,res)=>{
         const {userId} = req.user;
         
         const {oldPassword, newPassword, confirmNewPassword} = req.body;
+        console.log(userId)
         
         // const decodedToken = jwt.verify(token, process.env.jwtSecret);
         // const userId = decodedToken.userId

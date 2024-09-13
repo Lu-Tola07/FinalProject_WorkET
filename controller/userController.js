@@ -303,7 +303,7 @@ exports.logIn = async (req, res) => {
             })
         }
         
-        const findUser = await userModel.findOne({email});
+        const findUser = await userModel.findOne({email: email.toLowerCase});
         
         if(!findUser) {
             return res.status(404).json({
@@ -487,7 +487,7 @@ exports.reverifyEmail = async (req, res) => {
         }
 
         const userToken = jwt.sign(
-            {id:createdUser._id, email:createdUser.email},
+            {id:user._id, email:user.email},
             process.env.jwtSecret,
             {expiresIn: "2 minutes"}
         );
