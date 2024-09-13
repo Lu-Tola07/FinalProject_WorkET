@@ -29,14 +29,21 @@ const schema = Joi.object({
         "string.empty": "Email cannot be left empty.",
         "string.email": "Please provide a valid email address."
     }),
-    password: Joi.string().optional()
-    .regex(/^(?=.[a-z])(?=.[A-Z])(?=.[0-9])(?=.[!@#$%^&(),.?":{}|<>])[A-Za-z0-9!@#$%^&(),.?":{}|<>]{8,50}$/)
+    password: Joi.string().pattern(new RegExp("^(?=.[!@#$%^&.])(?=.*[A-Z]).{8,}$")).required()
     .messages({
-        "any.required": "Please provide a password.",
-        "string.empty": "Password cannot be left empty.",
-        "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character.",
-        "string.empty": "Password cannot be empty, must be at least 8 character maximum of 50 characters."
+      "any.required": "Password is required.",
+      "string.base": "Password must contain at least 8 characters, one capital letter, and one special character (!@#$%^&*.).",
+      "string.pattern.base":
+      "Password must contain at least 8 characters, one capital letter, and one special character (!@#$%^&*.)."
     }),
+    // password: Joi.string().optional()
+    // .regex(/^(?=.[a-z])(?=.[A-Z])(?=.[0-9])(?=.[!@#$%^&(),.?":{}|<>])[A-Za-z0-9!@#$%^&(),.?":{}|<>]{8,50}$/)
+    // .messages({
+    //     "any.required": "Please provide a password.",
+    //     "string.empty": "Password cannot be left empty.",
+    //     "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character.",
+    //     "string.empty": "Password cannot be empty, must be at least 8 character maximum of 50 characters."
+    // }),
     phoneNumber: Joi.string().min(11).max(11).required().regex(/^(?:\+234|0)(70|80|81|90|91)[0-9]{8}$/)
     .messages({
         "any.required": "Please provide Phone Number.",
