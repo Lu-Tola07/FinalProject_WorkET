@@ -41,7 +41,9 @@ const {createUser} = require('./userController');
 
 exports.newStaff = async (req, res) => {
     try {
-        const { fullName, email, role, address, phoneNumber } = req.body;
+        const { fullName, gender, email, role, address,
+            phoneNumber, bank, accountName, accountNumber,
+            monthlyGross} = req.body;
         const id = req.params.id;
 
         if(!id) {
@@ -76,12 +78,17 @@ exports.newStaff = async (req, res) => {
 
         const data = {
             fullName: fullName.trim(),
+            gender,
             email,
+            password: hashedPassword,
             role,
             address: address.trim(),
             phoneNumber,
-            user: id,
-            password: hashedPassword
+            bank,
+            accountName: accountName.trim(),
+            accountNumber,
+            monthlyGross: monthlyGross.trim(),
+            user: id
             // loginCode: uniqueCode
         };
 
@@ -94,13 +101,16 @@ exports.newStaff = async (req, res) => {
         // try {
         //     await sendMail(newStaff.email, 'Your Account Has Been Created', emailContent);
 
-        const emailContent = `Hello ${newStaff.fullName},\n\nYour account has been created successfully.\n\nLogin Email: ${newStaff.email}\nPassword: ${randomPassword}\n\nPlease change your password after logging in.\n\nBest regards,\nYour Company`;
+        const emailContent = `Hello ${newStaff.fullName},\n\n
+        Your account has been successfully created.\n\n
+        Login Email: ${newStaff.email}\nPassword: ${randomPassword}\n\n
+        Please ensure to change your password after logging in.\n\nBest regards,\nThe WorkET Team`;
 
         try {
             
             await sendMail({
                 email: newStaff.email,
-                subject: "Your Account Has Been Created.",
+                subject: `Welcome to ${user.nameOfCompany}!, Your Account Has Been Created.`,
                 text: emailContent,    
                 html: emailContent    
             })

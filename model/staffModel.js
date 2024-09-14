@@ -4,6 +4,14 @@ const staffSchema = new mongoose.Schema({
     fullName: {
         type: String
     },
+    gender: {
+        type: String,
+        enum: {
+            values: ["Male", "Female"],
+            message: "Gender can only either Male or Female."
+        },
+        required: true
+    },
     email: {
         type: String,
         // unique: true,
@@ -23,9 +31,18 @@ const staffSchema = new mongoose.Schema({
     phoneNumber: {
         type: String
     },
-    loginCode: {
+    bank: {
         type: String
     },
+    accountName: {
+        type: String
+    },
+    accountNumber: {
+        type: Number
+    },
+    // loginCode: {
+    //     type: String
+    // },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user"
@@ -39,9 +56,16 @@ const staffSchema = new mongoose.Schema({
         default: false
         // required: true
     },
-    profilePicture: {
-        pictureId: String,
-        pictureUrl: String
+    // profilePicture: {
+    //     pictureId: String,
+    //     pictureUrl: String
+    // },
+    monthlyGross: {
+        type: Number
+    },
+    resumptionDate: {
+        type: Date,
+        default: Date.now
     },
     performance: {
         tasksCompleted: {

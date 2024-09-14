@@ -8,6 +8,11 @@ const schema = Joi.object({
         "string.min": "Fullname must be at least 3 characters long.",
         "string.pattern.base": "Fullname must be in letters only and follow the correct format."
     }),
+    gender: Joi.string().valid("Male", "Female").required().messages({
+        "any.required": "Please provide a gender.",
+        "any.only": "Gender must be either Male or Female.",
+        "string.empty": "Gender cannot be left empty.",
+    }),
     // nameOfCompany: Joi.string().min(3).required().messages({
     //     "any.required": "Please provide Name Of Company.",
     //     "string.empty": "Name Of Company cannot be left empty.",
@@ -18,6 +23,14 @@ const schema = Joi.object({
         "string.empty": "Email cannot be left empty.",
         "string.email": "Please provide a valid email address."
     }),
+    password: Joi.string()
+    .required()
+    .pattern(new RegExp("^(?=.*[!@#$%^&*])(?=.*[A-Z]).{8,}$"))
+    .messages({
+      "any.required": "Please provide a password.",
+      "string.empty": "Password cannot be left empty.",
+      "string.pattern.base": "Password must be at least 8 characters long and include at least one uppercase letter and one special character (!@#$%^&*).",
+    }),
     role: Joi.string().min(3).required().messages({
         "any.required": "Please provide a role.",
         "string.empty": "The role cannot be left empty.",
@@ -27,14 +40,6 @@ const schema = Joi.object({
         "any.required": "Please provide address.",
         "string.empty": "Address cannot be left empty.",
         "string.min": "Address must be at least 3 characters long."
-    }),
-    password: Joi.string()
-    .required()
-    .pattern(new RegExp("^(?=.*[!@#$%^&*])(?=.*[A-Z]).{8,}$"))
-    .messages({
-      "any.required": "Please provide a password.",
-      "string.empty": "Password cannot be left empty.",
-      "string.pattern.base": "Password must be at least 8 characters long and include at least one uppercase letter and one special character (!@#$%^&*).",
     }),
     // password: Joi.string().optional()
     // .regex(/^(?=.[a-z])(?=.[A-Z])(?=.[0-9])(?=.[!@#$%^&(),.?":{}|<>])[A-Za-z0-9!@#$%^&(),.?":{}|<>]{8,50}$/)
@@ -50,6 +55,26 @@ const schema = Joi.object({
         "string.empty": "Phone Number cannot be left empty.",
         "string.min": "Phone Number must be at least 11 characters long.",
         "string.pattern.base": "Phone number must be a valid Nigerian number."
+    }),
+    bank: Joi.string().min(3).required().messages({
+        "any.required": "Please provide a Bank name.",
+        "string.empty": "Bank name cannot be left empty.",
+        "string.min": "Bank name must be at least 3 characters long."
+    }),
+    accountName: Joi.string().min(3).required().messages({
+        "any.required": "Please provide an Account name.",
+        "string.empty": "The account name cannot be left empty.",
+        "string.min": "The account name must be at least 3 characters long."
+    }),
+    accountNumber: Joi.number().min(3).max(10).required().messages({
+        "any.required": "Please provide an Account number.",
+        "number.empty": "The account number cannot be left empty.",
+        "number.min": "The account number must be at least 3 characters long."
+    }),
+    monthlyGross: Joi.number().min(3).required().messages({
+        "any.required": "Please provide a Monthly gross sum.",
+        "number.empty": "The monthly gross sum cannot be left empty.",
+        "number.min": "The monthly gross sum must be at least 3 characters long."
     })
 });
 

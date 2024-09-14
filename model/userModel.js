@@ -24,10 +24,10 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "staff"
     }],
-    profilePicture: {
-        pictureId: String,
-        pictureUrl: String
-    },
+    // profilePicture: {
+    //     pictureId: String,
+    //     pictureUrl: String
+    // },
     // isVerified: {
     //     type: Boolean,
     //     default: false

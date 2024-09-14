@@ -336,7 +336,8 @@ exports.logIn = async (req, res) => {
         const user = jwt.sign({
             nameOfCompany: findUser.nameOfCompany,
             email: findUser.email,
-            userId: findUser._id
+            userId: findUser._id,
+            isAdmin: findUser.isAdmin
         }, process.env.jwtSecret, {expiresIn: "1hr"});
 
         const {isActive, createdAt, updatedAt, __v, ...others} = findUser._doc;
