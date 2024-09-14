@@ -4,6 +4,61 @@ const userModel = require('../model/userModel');
 const staffModel = require('../model/staffModel')
 
 
+// const authenticate = async (req, res, next) => {
+//     try {
+//         const hasAuthorization = req.headers.authorization;
+//         if(!hasAuthorization) {
+//             return res.status(400).json({
+//                 message: "Invalid authorization."
+//             })
+//         }
+//         const token = hasAuthorization.split(" ")[1];
+//         // console.log('this is the token',token)
+//         if(!token) {
+//             return res.status(404).json({
+//                 message: "Token not found.",
+//             })
+//         }
+        
+//         const decodeToken = await jwt.verify(token, process.env.jwtSecret);
+//         console.log('this is the user',decodeToken)
+
+//         let user;
+//         user = await userModel.findById(decodeToken.userId);
+//         if(!user) {
+//             user = await staffModel.findById(decodeToken.userId);
+//             console.log('this is the staff',user)
+//             if(!user) {
+//                 return res.status(404).json({
+//                     message: "Not authorized: User not found."
+//                 })
+//             }
+//         }
+//         // req.user = {
+//         //     userId: user._id,
+//         //     decodeToken
+//         // }
+//         req.user = user.id;
+//         console.log('this is the user id',req.user)
+
+
+//         next();
+        
+//     } catch (error) {
+//         console.error(error.message)
+//         if(error instanceof jwt.JsonWebTokenError) {
+//             return res.status(401).json({
+//                 message: "Invalid or expired token, please login to continue.",
+//             })
+//         }
+
+//         return res.status(500).json({
+//             Error: "Authentication error:  " + error.message,
+//         })        
+//     }
+// };
+
+
 const authenticate = async (req, res, next) => {
     try {
         const hasAuthorization = req.headers.authorization;
@@ -11,52 +66,64 @@ const authenticate = async (req, res, next) => {
             return res.status(400).json({
                 message: "Invalid authorization."
             })
-        }
+        };
+        
+        // Extract token from "Bearer <token>"
         const token = hasAuthorization.split(" ")[1];
-        // console.log('this is the token',token)
-        if(!token) {
-            return res.status(404).json({
+        if (!token) {
+            return res.status(400).json({
                 message: "Token not found.",
             })
-        }
-        
-        const decodeToken = await jwt.verify(token, process.env.jwtSecret);
-        console.log('this is the user',decodeToken)
+        };
 
-        let user;
-        user = await userModel.findById(decodeToken.userId);
+        // Verify token
+        const decodedToken = await jwt.verify(token, process.env.jwtSecret);
+        console.log('Decoded token:', decodedToken);
+
+        // Retrieve user from database
+        let user = await userModel.findById(decodedToken.userId);
         if(!user) {
-            user = await staffModel.findById(decodeToken.userId);
-            console.log('this is the staff',user)
-            if(!user) {
+            user = await staffModel.findById(decodedToken.userId);
+            if (!user) {
                 return res.status(404).json({
                     message: "Not authorized: User not found."
                 })
             }
-        }
-        // req.user = {
-        //     userId: user._id,
-        //     decodeToken
-        // }
-        req.user = user.id;
-        console.log('this is the user id',req.user)
+        };
 
+        // Attach user to request object
+        req.user = user;
+        console.log('User attached to request:', req.user);
 
         next();
         
     } catch (error) {
-        console.error(error.message)
+        console.error('Authentication error:', error.message);
         if(error instanceof jwt.JsonWebTokenError) {
             return res.status(401).json({
                 message: "Invalid or expired token, please login to continue.",
             })
         }
-
         return res.status(500).json({
-            Error: "Authentication error:  " + error.message,
-        })        
+            Error: "Authentication error: " + error.message,
+        })
     }
 };
+
+// const makeAdmin = (req, res, next) => {
+//     // Call authenticate and handle the case when `authenticate` middleware completes
+//     authenticate(req, res, () => {
+//         if (req.user && req.user.isAdmin) {
+//             next();
+//         } else {
+//             return res.status(403).json({
+//                 message: "Not an Admin! User not authorized."
+//             });
+//         }
+//     });
+// };
+
+
 
 const authenticated = async (req, res, next) => {
     try {
@@ -87,7 +154,7 @@ const makeAdmin = (req, res, next) => {
             })
         }
     })
-}
+};
 
 
 module.exports = {
