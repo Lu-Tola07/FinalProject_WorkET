@@ -67,6 +67,14 @@ const schema = Joi.object({
       "string.empty": "Password cannot be left empty.",
       "string.pattern.base": "Password must be at least 8 characters long and include at least one uppercase letter and one special character (!@#$%^&*).",
     }),
+    confirmPassword: Joi.string()
+    .required()
+    .pattern(new RegExp("^(?=.*[!@#$%^&*])(?=.*[A-Z]).{8,}$"))
+    .messages({
+      "any.required": "Please provide a password.",
+      "string.empty": "Password cannot be left empty.",
+      "string.pattern.base": "Password must be at least 8 characters long and include at least one uppercase letter and one special character (!@#$%^&*).",
+    }),
     phoneNumber: Joi.string().min(11).max(11).required().regex(/^(?:\+234|0)(70|80|81|90|91)[0-9]{8}$/)
     .messages({
         "any.required": "Please provide Phone Number.",

@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String
     },
+    confirmPassword: {
+        type: String
+    },
     staff: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "staff"

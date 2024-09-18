@@ -11,14 +11,20 @@ const path = require('path');
 
 exports.createUser = async (req, res) => {
     try {
-        const {fullName, nameOfCompany, phoneNumber, email, password, staff} = req.body;
+        const {fullName, nameOfCompany, phoneNumber, email, password, confirmPassword, staff} = req.body;
        
+        if(password !== confirmPassword) {
+            return res.status(400).json({
+                error: "Passwords do not match."
+            })
+        };
+
         const emailExist = await userModel.findOne({email: email.toLowerCase()}); 
         if(emailExist) {
             return res.status(400).json({
                 error: "This email account already exists."
             })
-        }
+        };
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
