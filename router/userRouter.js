@@ -15,14 +15,14 @@ const {forgotPassword, changePassword, resetPassword} = require('../controller/p
 router.post("/newUser", validateSignUp, createUser);
 
 router.post("/Login", logIn);
-router.post("/forget", makeAdmin, forgotPassword);
+router.post("/forget", authenticate, forgotPassword);
 
 router.get("/verify/:id/:token", verifyEmail);
 router.get("/reverify/:id", reverifyEmail);
 router.get("/allUsers", makeAdmin, getAllUsers);
 router.get("/User/:id", makeAdmin, getAUser);
 
-router.put("/reset", makeAdmin, resetPassword);
+router.put("/reset", authenticate, resetPassword);
 router.put("/change", authenticate, validatePassword, changePassword);
 router.patch("/Update/:id", makeAdmin, updateAUser);
 
