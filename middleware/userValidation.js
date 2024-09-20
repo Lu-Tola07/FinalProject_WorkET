@@ -24,7 +24,7 @@ const schema = Joi.object({
         "string.empty": "Name Of Company cannot be left empty.",
         "string.min": "Name Of Company must be at least 3 characters long."
     }),
-    email: Joi.string().email().required().messages({
+    email: Joi.string().email({minDomainSegments: 2}).required().messages({
         "any.required": "Please provide an email address.",
         "string.empty": "Email cannot be left empty.",
         "string.email": "Please provide a valid email address."
@@ -75,11 +75,19 @@ const schema = Joi.object({
       "string.empty": "Password cannot be left empty.",
       "string.pattern.base": "Password must be at least 8 characters long and include at least one uppercase letter and one special character (!@#$%^&*).",
     }),
-    phoneNumber: Joi.string().min(11).max(11).required().regex(/^(?:\+234|0)(70|80|81|90|91)[0-9]{8}$/)
+    // phoneNumber: Joi.string().min(11).max(11).required().regex(/^(?:\+234|0)(70|80|81|90|91)[0-9]{8}$/)
+    // .messages({
+    //     "any.required": "Please provide Phone Number.",
+    //     "string.empty": "Phone Number cannot be left empty.",
+    //     "string.min": "Phone Number must be at least 11 characters long.",
+    //     "string.pattern.base": "Phone number must be a valid Nigerian number."
+    // })
+    phoneNumber: Joi.string().length(11).required().regex(/^(?:\+234|0)(70|80|81|90|91)[0-9]{8}$/)
+    .pattern(/^(\+\d{1,3}[- ]?)?\d{10}$/) 
     .messages({
-        "any.required": "Please provide Phone Number.",
-        "string.empty": "Phone Number cannot be left empty.",
-        "string.min": "Phone Number must be at least 11 characters long.",
+        "any.required": "Please provide a phone number.",
+        "string.empty": "Phone number cannot be left empty.",
+        "string.length": "Phone number must be exactly 11 characters long.",
         "string.pattern.base": "Phone number must be a valid Nigerian number."
     })
 });

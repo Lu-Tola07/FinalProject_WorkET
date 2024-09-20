@@ -23,9 +23,10 @@ const schema = Joi.object({
     //     "string.empty": "Email cannot be left empty.",
     //     "string.email": "Please provide a valid email address."
     // }),
-    email: Joi.string().email().required().messages({
+    email: Joi.string().email({minDomainSegments: 2}).required().messages({
         "any.required": "Please provide an email address.",
         "string.empty": "Email cannot be left empty.",
+        "string.base": "Email must be a string.",
         "string.email": "Please provide a valid email address."
     }),
     // password: Joi.string().required().pattern(new RegExp("^(?=.*[!@#$%^&*])(?=.*[A-Z]).{8,}$")).messages({
@@ -54,39 +55,79 @@ const schema = Joi.object({
         "string.empty": "The role cannot be left empty.",
         "string.min": "Role must be at least 3 characters long."
     }),
-    address: Joi.string().min(3).required().messages({
-        "any.required": "Please provide an address.",
-        "string.empty": "Address cannot be left empty.",
-        "string.min": "Address must be at least 3 characters long."
+    address: Joi.string()
+    // .min(3).required().messages({
+    //     "any.required": "Please provide an address.",
+    //     "string.empty": "Address cannot be left empty.",
+    //     "string.min": "Address must be at least 3 characters long."
+    .min(5)
+    .max(100)
+    .pattern(/^[a-zA-Z0-9\s,.'-]+$/) // allows letters, numbers, spaces, and some special characters
+    .required()
+    .messages({
+        "string.base": "Address must be a string.",
+        "string.empty": "Address cannot be empty.",
+        "string.min": "Address must be at least 5 characters long.",
+        "string.max": "Address must be less than 100 characters long.",
+        "string.pattern.base": "Address contains invalid characters.",
+        "any.required": "Address is required."
     }),
     phoneNumber: Joi.string().length(11).required().regex(/^(?:\+234|0)(70|80|81|90|91)[0-9]{8}$/)
+    .pattern(/^(\+\d{1,3}[- ]?)?\d{10}$/) 
     .messages({
         "any.required": "Please provide a phone number.",
         "string.empty": "Phone number cannot be left empty.",
         "string.length": "Phone number must be exactly 11 characters long.",
         "string.pattern.base": "Phone number must be a valid Nigerian number."
     }),
-    bank: Joi.string().min(3).required().messages({
+    bank: Joi.string().min(3).max(50).required().messages({
         "any.required": "Please provide a bank name.",
         "string.empty": "Bank name cannot be left empty.",
         "string.min": "Bank name must be at least 3 characters long."
     }),
-    accountName: Joi.string().min(3).required().messages({
-        "any.required": "Please provide an account name.",
-        "string.empty": "Account name cannot be left empty.",
-        "string.min": "Account name must be at least 3 characters long."
+    accountName: Joi.string()
+    // .min(3).required().messages({
+    //     "any.required": "Please provide an account name.",
+    //     "string.empty": "Account name cannot be left empty.",
+    //     "string.min": "Account name must be at least 3 characters long."
+    .min(1)
+    .max(100)
+    .pattern(/^[a-zA-Z0-9\s-]+$/) // allows letters, numbers, spaces, and hyphens
+    .required()
+    .messages({
+        "string.base": "Account name must be a string.",
+        "string.empty": "Account name cannot be empty.",
+        "string.min": "Account name must be at least 1 character long.",
+        "string.max": "Account name must be less than 100 characters long.",
+        "string.pattern.base": "Account name contains invalid characters.",
+        "any.required": "Account name is required."
     }),
-    accountNumber: Joi.string().length(10).required().pattern(/^\d+$/)
-        .messages({
-            "any.required": "Please provide an account number.",
-            "string.empty": "Account number cannot be left empty.",
-            "string.length": "Account number must be exactly 10 digits long.",
-            "string.pattern.base": "Account number must contain only digits."
+    accountNumber: Joi.string().alphanum().min(8).max(12).required()
+    .messages({
+            // "any.required": "Please provide an account number.",
+            // "string.empty": "Account number cannot be left empty.",
+            // "string.length": "Account number must be exactly 10 digits long.",
+            // "string.pattern.base": "Account number must contain only digits."
+            "string.base": "Account number must be a string.",
+            'string.empty': 'Account number cannot be empty.',
+            "string.min": "Account number must be at least 8 characters long.",
+            "string.max": "Account number must be less than 12 characters long.",
+            "string.alphanum": "Account number must be alphanumeric.",
+            "any.required": "Account number is required."
         }),
-    monthlyGross: Joi.number().greater(0).required().messages({
-        "any.required": "Please provide a monthly gross sum.",
-        "number.base": "The monthly gross sum must be a number.",
-        "number.greater": "The monthly gross sum must be greater than 0."
+    monthlyGross: Joi.number()
+    // .greater(0).required().messages({
+    //     "any.required": "Please provide a monthly gross sum.",
+    //     "number.base": "The monthly gross sum must be a number.",
+    //     "number.greater": "The monthly gross sum must be greater than 0."
+    .positive()
+    .precision(2)
+    .required()
+    .messages({
+        "number.base": "Monthly gross must be a number.",
+        "number.positive": "Monthly gross must be a positive number.",
+        "number.precision": "Monthly gross must have up to 2 decimal places.",
+        "any.required": "Monthly gross is required."
     })
 });
 

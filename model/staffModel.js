@@ -67,36 +67,53 @@ const staffSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    performance: {
-        tasksCompleted: {
-            type: Number,
-            default: 0
-        },
-        performanceReviews: [
-            {
-                reviewDate: {
-                    type: Date,
-                    default: Date.now
-                },
-                reviewer: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "user"
-                },
-                rating: {
-                    type: Number,
-                    min: 1,
-                    max: 5
-                },
-                comments: {
-                    type: String
-                }
-            }
-        ],
-        averageRating: {
-            type: Number,
-            default: 0
+    // performance: {
+    //     tasksCompleted: {
+    //         type: Number,
+    //         default: 0
+    //     },
+    //     performanceReviews: [
+    //         {
+    //             reviewDate: {
+    //                 type: Date,
+    //                 default: Date.now
+    //             },
+    //             reviewer: {
+    //                 type: mongoose.Schema.Types.ObjectId,
+    //                 ref: "user"
+    //             },
+    //             rating: {
+    //                 type: Number,
+    //                 min: 1,
+    //                 max: 5
+    //             },
+    //             comments: {
+    //                 type: String
+    //             }
+    //         }
+    //     ],
+    //     averageRating: {
+    //         type: Number,
+    //         default: 0
+    //     }
+    // }
+    monthlyPayments: [
+        {
+            amount: {
+                type: Number,
+                required: true
+            },
+            date: {
+                type: Date,
+                default: Date.now
+            },
+            status: {
+                type: String,
+                enum: ["Pending", "Completed", "Failed"],
+                default: "Pending"
+            }    
         }
-    } 
+    ]
 }, {timestamp: true});
 
 
