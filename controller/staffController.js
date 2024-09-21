@@ -341,12 +341,22 @@ exports.loginStaff = async (req, res) => {
 
 exports.getAllStaff = async (req, res) => {
     try {
-        
-        const staff = await staffModel.find().sort({createdAt: -1}).populate("user");
+        const userId = req.params.userId; // Choose based on your design
+
+        if(!userId) {
+            return res.status(400).json({
+                message: "User ID is required."
+            })
+        };
+
+        // Find staff records for the specified user
+        const staff = await staffModel.find({user: userId}).sort({createdAt: -1}).populate("user");
         const allStaff = staff.length;
 
         if(allStaff < 1) {
-            res.status(404).json("No staff was found.")
+            res.status(404).json({
+                message: "No staff was found."
+            })
         } else {
             res.status(200).json({
                 message: "These are the number of staff available.",
@@ -354,6 +364,19 @@ exports.getAllStaff = async (req, res) => {
                 data: staff
             })
         }
+
+        // const staff = await staffModel.find({user: }).sort({createdAt: -1}).populate("user");
+        // const allStaff = staff.length;
+
+        // if(allStaff < 1) {
+        //     res.status(404).json("No staff was found.")
+        // } else {
+        //     res.status(200).json({
+        //         message: "These are the number of staff available.",
+        //         allStaff,
+        //         data: staff
+        //     })
+        // }
 
     } catch (error) {
         res.status(500).json(error.message)

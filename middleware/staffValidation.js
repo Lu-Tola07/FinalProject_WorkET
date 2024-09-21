@@ -6,7 +6,7 @@ const schema = Joi.object({
         "any.required": "Please provide fullname.",
         "string.empty": "Fullname cannot be left empty.",
         "string.min": "Fullname must be at least 3 characters long.",
-        "string.pattern.base": "Fullname must be in letters only and follow the correct format."
+        "string.pattern.base": "Fullname must follow the correct format and begin with a capital letter."
     }),
     // nameOfCompany: Joi.string().min(3).required().messages({
     //     "any.required": "Please provide Name Of Company.",
