@@ -83,7 +83,7 @@ const schema = Joi.object({
     //     "string.pattern.base": "Phone number must be a valid Nigerian number."
     // })
     phoneNumber: Joi.string().length(11).required().regex(/^(?:\+234|0)(70|80|81|90|91)[0-9]{8}$/)
-    .pattern(/^(\+\d{1,3}[- ]?)?\d{10}$/) 
+    // .pattern(/^(\+\d{1,3}[- ]?)?\d{10}$/) 
     .messages({
         "any.required": "Please provide a phone number.",
         "string.empty": "Phone number cannot be left empty.",
