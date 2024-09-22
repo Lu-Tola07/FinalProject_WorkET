@@ -21,7 +21,7 @@ router.post("/confirmPayment", confirmPaymentStatus);
 
 
 router.get("/verifyStaff/:id/:token", verifyStaff);
-router.get("/allStaff", getAllStaff);
+router.get("/allStaff/:id", getAllStaff);
 router.get("/Staff/:id", getAStaff);
 router.get("/Staff/Performance/:id", authenticate, authenticated, validateStaff, getPerformanceData);
 // router.get("/staffSalary", allStaffPay);
