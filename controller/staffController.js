@@ -341,29 +341,57 @@ exports.loginStaff = async (req, res) => {
 
 exports.getAllStaff = async (req, res) => {
     try {
-        const id = req.params.userId; // Choose based on your design
+        const id = req.params.userId; // Ensure the endpoint captures this parameter
 
+        // Check if the user ID is provided
         if(!id) {
             return res.status(400).json({
                 message: "User ID is required."
             })
-        };
+        }
 
         // Find staff records for the specified user
         const staff = await staffModel.find({user: id}).sort({createdAt: -1}).populate("user");
         const allStaff = staff.length;
 
+        // Check if any staff records were found
         if(allStaff < 1) {
-            res.status(404).json({
+            return res.status(404).json({
                 message: "No staff was found."
             })
-        } else {
-            res.status(200).json({
-                message: "These are the number of staff available.",
-                allStaff,
-                data: staff
-            })
         }
+
+        // Send response with the count of staff and data
+        return res.status(200).json({
+            message: "These are the number of staff available.",
+            allStaff,
+            data: staff
+        });
+
+
+        // const id = req.params.userId; // Choose based on your design
+
+        // if(!id) {
+        //     return res.status(400).json({
+        //         message: "User ID is required."
+        //     })
+        // };
+
+        // // Find staff records for the specified user
+        // const staff = await staffModel.find({user: id}).sort({createdAt: -1}).populate("user");
+        // const allStaff = staff.length;
+
+        // if(allStaff < 1) {
+        //     res.status(404).json({
+        //         message: "No staff was found."
+        //     })
+        // } else {
+        //     res.status(200).json({
+        //         message: "These are the number of staff available.",
+        //         allStaff,
+        //         data: staff
+        //     })
+        // }
 
         // const staff = await staffModel.find({user: }).sort({createdAt: -1}).populate("user");
         // const allStaff = staff.length;
