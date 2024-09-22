@@ -341,16 +341,16 @@ exports.loginStaff = async (req, res) => {
 
 exports.getAllStaff = async (req, res) => {
     try {
-        const userId = req.params.userId; // Choose based on your design
+        const id = req.params.userId; // Choose based on your design
 
-        if(!userId) {
+        if(!id) {
             return res.status(400).json({
                 message: "User ID is required."
             })
         };
 
         // Find staff records for the specified user
-        const staff = await staffModel.find({user: userId}).sort({createdAt: -1}).populate("user");
+        const staff = await staffModel.find({user: id}).sort({createdAt: -1}).populate("user");
         const allStaff = staff.length;
 
         if(allStaff < 1) {
