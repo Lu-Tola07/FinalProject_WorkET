@@ -341,10 +341,9 @@ exports.loginStaff = async (req, res) => {
 
 exports.getAllStaff = async (req, res) => {
     try {
-        const id = req.params.id; // Ensure the endpoint captures this parameter
+        const id = req.params.id;
         console.log(id)
 
-        // Check if the user ID is provided
         if(!id) {
             return res.status(400).json({
                 message: "User ID is required."
