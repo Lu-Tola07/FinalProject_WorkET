@@ -69,7 +69,7 @@ function welcomeEmail(verifyLink, nameOfCompany) {
             </div>
             <div class="footer">
                 <p>&copy; ${new Date().getFullYear()}. All rights reserved.</p>
-                <p>'Lu Tola</p>
+                <p>WorkET</p>
             </div>
         </div>
     </body>
