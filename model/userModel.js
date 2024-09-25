@@ -49,6 +49,15 @@ const userSchema = new mongoose.Schema({
     // } 
 }, {timestamp: true});
 
+userSchema.pre("save", function(next) {
+    this.fullName = capitalizeEachWord(this.fullName);
+
+    next()
+});
+
+function capitalizeEachWord(str) {
+    return str.replace(/\b\w/g, (char) => char.toUpperCase())
+};
 
 const userModel = mongoose.model("user", userSchema);
 

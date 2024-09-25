@@ -64,7 +64,14 @@ exports.newStaff = async (req, res) => {
             return res.status(404).json({
                 message: "This user was not found."
             })
-        }
+        };
+
+        const emailExist = await staffModel.findOne({email: email.toLowerCase()}); 
+        if(emailExist) {
+            return res.status(400).json({
+                error: "This email account already exists."
+            })
+        };
 
         // const file = req.file;
         // if (!file) {
@@ -431,13 +438,21 @@ exports.getAStaff = async (req, res) => {
 exports.updateAStaff = async (req, res) => {
     try {
         const staffId = req.params.id;
-        const {fullName, email, role, address, phoneNumber} = req.body;
+        const {fullName, gender, email, role, address,
+            phoneNumber, bank, accountName, accountNumber,
+            monthlyGross} = req.body;
+
         const data = {
             fullName,
+            gender,
             email,
             role,
             address,
             phoneNumber,
+            bank,
+            accountName,
+            accountNumber,
+            monthlyGross,
             user
         }
 

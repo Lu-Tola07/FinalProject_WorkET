@@ -116,6 +116,15 @@ const staffSchema = new mongoose.Schema({
     ]
 }, {timestamp: true});
 
+staffSchema.pre("save", function(next) {
+    this.fullName = capitalizeEachWord(this.fullName);
+
+    next()
+});
+
+function capitalizeEachWord(str) {
+    return str.replace(/\b\w/g, (char) => char.toUpperCase())
+};
 
 const staffModel = mongoose.model("staff", staffSchema);
 

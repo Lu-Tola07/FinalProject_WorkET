@@ -1,16 +1,22 @@
 const Joi = require("@hapi/joi");
 
 const schema = Joi.object({
-    fullName: Joi.string().min(3)
-    .trim() // Automatically trims leading and trailing spaces
-    .required()
-    .pattern(/^[A-Z][a-zA-Z'-]+( [A-Z]\.)?( [A-Z][a-zA-Z'-]+)+$/)
-    .messages({
-        "any.required": "Please provide a fullname.",
-        "string.empty": "Fullname cannot be left empty.",
+    fullName: Joi.string().min(3).required().pattern(new RegExp(/^[A-Za-z]+(?: [A-Za-z]+)*$/)).messages({
+        "any.required": "Please provide your fullname.",
+        "string.empty": "Fullname cannot be an empty string.",
         "string.min": "Fullname must be at least 3 characters long.",
-        "string.pattern.base": "Fullname must follow the correct format and begin with a capital letter."
+        "string.pattern.base": "Fullname should only contain letters and a single space in between."
     }),
+    // fullName: Joi.string().min(3)
+    // .trim() // Automatically trims leading and trailing spaces
+    // .required()
+    // .pattern(/^[A-Z][a-zA-Z'-]+( [A-Z]\.)?( [A-Z][a-zA-Z'-]+)+$/)
+    // .messages({
+    //     "any.required": "Please provide a fullname.",
+    //     "string.empty": "Fullname cannot be left empty.",
+    //     "string.min": "Fullname must be at least 3 characters long.",
+    //     "string.pattern.base": "Fullname should only contain letters and a single space in between."
+    // }),
     // fullName: Joi.string().min(3).trim().required().pattern(/^[A-Z][a-zA-Z'-]+( [A-Z]\.)?( [A-Z][a-zA-Z'-]+)+$/)
     // .messages({
     //     "any.required": "Please provide fullname.",
@@ -59,6 +65,15 @@ const schema = Joi.object({
     //     "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character.",
     //     "string.empty": "Password cannot be empty, must be at least 8 character maximum of 50 characters."
     // }),
+    // password: Joi.string()
+    //         .pattern(new RegExp("^(?=.[!@#$%^&])(?=.*[A-Z]).{7,}$"))
+    //         .required()
+    //         .messages({
+    //             "any.required": "Please provide a password.",
+    //             "string.empty": "Password cannot be left empty.",
+    //             "string.pattern.base":
+    //                 "Password must be at least 7 characters long and include at least one uppercase letter and one special character (!@#$%^&*).",
+    //         }),
     password: Joi.string()
     .required()
     .pattern(new RegExp("^(?=.*[!@#$%^&*])(?=.*[A-Z]).{8,}$"))

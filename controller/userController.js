@@ -183,7 +183,8 @@ exports.createUser = async (req, res) => {
         newUser.token = userToken;
         await newUser.save();
 
-        const verifyLink = `${req.protocol}://${req.get("host")}/api/v1/verify/${newUser._id}/${userToken}`
+        // const verifyLink = `${req.protocol}://${req.get("host")}/api/v1/verify/${newUser._id}/${userToken}`
+        const verifyLink = `https://worket-njw4.vercel.app/`
         // const verifyLink = `${req.protocol}://${req.get('host')}/api/v1/login/${newUser._id}/${userToken}`;
         
         sendMail({
